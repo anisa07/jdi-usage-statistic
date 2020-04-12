@@ -11,7 +11,7 @@ if (process.env.DB === 'mongo') {
 }
 
 app.use(express.json());
-app.use('/subscribers/data', router);
+app.use('/jdi/usage/statistic', router);
 app.use('/statistic', express.static(__dirname + '/public'));
 
 app.listen(process.env.SERVER_PORT || 5000, () => console.log('server started on port ' + process.env.SERVER_PORT));

@@ -1,7 +1,7 @@
-let dbServices;
+let service;
 
 if (process.env.DB === 'mongo') {
-    dbServices = require('./mongo');
+    service = require('./service');
 }
 
-module.exports = dbServices;
+module.exports = service;

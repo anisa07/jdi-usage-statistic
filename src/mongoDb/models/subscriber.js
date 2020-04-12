@@ -1,19 +1,22 @@
 const mongoose = require('mongoose');
+const { updateIfCurrentPlugin } = require('mongoose-update-if-current');
+
 const subscriberSchema = new mongoose.Schema({
-    subscriberExternalId: {
+    subscriberId: {
         type: String,
         required: true
     },
-    // numberOfConnection: {
-    //     type: Number,
-    //     required: true,
-    //     default: 1
-    // },
+    projectId: {
+        type: String,
+        required: true
+    },
     subscriberDate: {
         type: Date,
         required: true,
         default: Date.now
     }
 });
+
+subscriberSchema.plugin(updateIfCurrentPlugin);
 
 module.exports = mongoose.model('Subscriber', subscriberSchema);
