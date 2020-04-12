@@ -6,14 +6,10 @@ const {
 } = require('../controllers/controllers');
 
 // get all info for home page
-router.get('/info', (req, res) => {
-    getInfo(req, res);
-});
+router.get('/info', (req, res) => getInfo(req, res));
 
 // post subscribers data {date, projectId, userId, version}
-router.post('/info', (req, res) => {
-    postInfo(req, res);
-});
+router.post('/info', (req, res) => postInfo(req, res));
 
 // // get records by id
 // router.get('/:externalId', (req, res) => {

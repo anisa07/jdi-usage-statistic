@@ -13,7 +13,7 @@ const resolveErrWhilePost = async (postFunc, params, req) => {
     while (attempt < 3 && (errorType === 'VersionError' || !errorType)) {
         try {
             attempt++;
-            await postFunc(params);
+            return await postFunc(params);
         } catch (e) {
             logPromiseError(req, e.message);
             errorType = e.type;
@@ -52,6 +52,8 @@ const postInfo = async (req, res) => {
     await resolveErrWhilePost(service.postSubscriber, {userId, projectId, date}, req);
     await resolveErrWhilePost(saveIntensity, {today, tomorrow, date}, req);
     await resolveErrWhilePost(saveVersion, {today, tomorrow, date, version}, req);
+
+    res.status(200).json('success');
 };
 
 module.exports = {
