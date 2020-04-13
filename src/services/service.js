@@ -9,25 +9,30 @@ const Version = require('../mongoDb/models/version');
 //     .limit(resPerPage);
 
 // GET from DB
-const geAllSubscribers = () => Subscriber.find();
+const getAllSubscribers = () => Subscriber.find();
+
+const getIntensity = () => Intensity.find();
+
+const getVersions = () => Version.find();
 
 const getIntensityByDate = (date, nextDate) => Intensity.find({
     intensityDate: {
-        '$gte': date,
-        '$lt': nextDate
+        $gte: new Date(date),
+        $lte: new Date(nextDate)
     }
 });
 
 const getVersionByDate = (version, date, nextDate) => Version.find({
     version,
     versionDate: {
-        '$gte': date,
-        '$lt': nextDate
+        $gte: new Date(date),
+        $lte: new Date(nextDate)
     }
 });
 
 // POST to DB
 const postSubscriber = ({userId, projectId, date}) => {
+    // return Subscriber.deleteMany();
     const subscriber = new Subscriber({
         subscriberId: userId,
         projectId,
@@ -37,21 +42,23 @@ const postSubscriber = ({userId, projectId, date}) => {
     return subscriber.save();
 };
 
-const postIntensity = ({intensity, date}) => {
-    const addIntensity = new Intensity({
-        intensity,
-        intensityDate: date
+const postIntensity = ({intensity, intensityDate, today, tomorrow}) => {
+    // return Intensity.deleteMany()
+    return Intensity.findOneAndUpdate({
+        intensityDate: {
+            $gte: new Date(today),
+            $lte: new Date(tomorrow)
+        }
+    }, {intensity, intensityDate}, {
+        new: true,
+        upsert: true,
+        runValidators: true,
+        useFindAndModify: false
     });
-
-    return addIntensity.save();
 };
-// Intensity.findOneAndUpdate({intensityDate: date}, {intensity}, {
-//     new: true,
-//     upsert: true,
-//     runValidators: true
-// });
 
 const postVersion = ({version, date}) => {
+    // return Version.deleteMany();
     const addVersion = new Version({
         version,
         versionDate: date
@@ -73,7 +80,9 @@ module.exports = {
     postSubscriber,
     postIntensity,
     postVersion,
-    geAllSubscribers,
+    getAllSubscribers,
+    getIntensity,
+    getVersions,
     getIntensityByDate,
     getVersionByDate
 };
