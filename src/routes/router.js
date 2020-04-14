@@ -11,6 +11,9 @@ router.get('/info', (req, res) => getInfo(req, res));
 // post subscribers data {date, projectId, userId, version}
 router.post('/info', (req, res) => postInfo(req, res));
 
+// post intensity data {intensity}
+router.post('/intensity', (req, res) => postIntensity(req, res));
+
 // // get records by id
 // router.get('/:externalId', (req, res) => {
 //     try {

@@ -6,7 +6,33 @@ const getInfo = async (req, res) => {
     const intensity = await service.getIntensity();
     const versions = await service.getVersions();
 
-    const uniqueUsers = new Set(subscribers.map(user => user.subscriberId));
+    const lastMonth = Date.now() - (3600000*24*30);
+
+    // const uniqueUsersSet = new Set();
+    // const activeUsersSet = new Set();
+    //
+    // const subscribersMap = new Map();
+    // let sessionsLastMonth = 0;
+
+    // subscribers.forEach(subscriber => {
+    //     let sInMap = {};
+    //     if (subscribersMap.has(subscriber.subscriberId)) {
+    //         sInMap = subscribersMap.get(subscriber.subscriberId);
+    //         sInMap.allDates.push(subscriber.subscriberDate);
+    //     } else {
+    //         const sInMap = {
+    //             allDates: [subscriber.subscriberDate],
+    //             allProjects: [subscriber.projectId]
+    //         };
+    //         subscribersMap.set(subscriber.subscriberId, sInMap);
+    //     }
+    //     if (subscriber.subscriberDate > lastMonth) {
+    //         sessionsLastMonth++;
+    //     }
+    // });
+    //
+    // // const activeUsers = Array.from(activeUsersSet);
+    // const uniqueUsers = subscribersMap.size;
 
     console.log('subscribers', subscribers);
     console.log('intensity', intensity);
@@ -30,16 +56,16 @@ const resolveErrWhilePost = async (postFunc, params, req) => {
     }
 };
 
-const saveIntensity = async ({today, tomorrow, date}) => {
+const saveIntensity = async ({today, tomorrow, date, intensity}) => {
     let intensityArray = await service.getIntensityByDate(today, tomorrow);
     let intensityObj = {
         intensityDate: date,
     };
     if (intensityArray[0]) {
-        intensityObj.intensity = intensityArray[0].intensity + 1;
+        intensityObj.intensity = intensityArray[0].intensity + intensity;
     } else {
         intensityObj = {
-            intensity: 1,
+            intensity: intensity,
             intensityDate: date
         }
     }
@@ -63,16 +89,27 @@ const postInfo = async (req, res) => {
     const today = new Date(date).setHours(0,0,0);
     const tomorrow = new Date(date).setHours(23, 59, 59);
 
-    await resolveErrWhilePost(service.postSubscriber, {userId, projectId, date}, req);
-    await resolveErrWhilePost(saveIntensity, {today, tomorrow, date}, req);
+    await resolveErrWhilePost(service.postSubscriber, {userId, projectId, date, today, tomorrow}, req);
     await resolveErrWhilePost(saveVersion, {today, tomorrow, date, version}, req);
+
+    res.status(200).json('success');
+};
+
+const postIntensity = async (req, res) => {
+    const {intensity} = req.body;
+    const date = Date.now();
+    const today = new Date(date).setHours(0,0,0);
+    const tomorrow = new Date(date).setHours(23, 59, 59);
+
+    await resolveErrWhilePost(saveIntensity, {today, tomorrow, date, intensity}, req);
 
     res.status(200).json('success');
 };
 
 module.exports = {
     getInfo,
-    postInfo
+    postInfo,
+    postIntensity
 };
 
 

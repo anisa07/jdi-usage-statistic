@@ -6,15 +6,22 @@ const subscriberSchema = new mongoose.Schema({
         type: String,
         required: true
     },
-    projectId: {
-        type: String,
-        required: true
-    },
-    subscriberDate: {
+    projectId: [{
+        type: String
+    }],
+    subscriberDate: [{
         type: Date,
-        required: true,
         default: Date.now
-    }
+    }]
+    // projectId: {
+    //     type: String,
+    //     required: true
+    // },
+    // subscriberDate: {
+    //     type: Date,
+    //     required: true,
+    //     default: Date.now
+    // }
 });
 
 subscriberSchema.plugin(updateIfCurrentPlugin);
