@@ -7,73 +7,111 @@ const getInfo = async (req, res) => {
     const versions = await service.getVersions();
 
     const lastMonth = Date.now() - (3600000*24*30);
-    let uniqueUsers = new Map();
+    let usersMap = new Map();
+    let projectsMap = new Map();
+    let uniqueUsers;
     let newUsers = 0;
     let activeUsers = 0;
     let newProjects = 0;
     let activeProjects = 0;
-
     let sessionsLastMonth = 0;
-
     let activeUsedVersions = [];
-
     let lastMonthUsageIntensity = 0;
 
     // //subscriberDate, projectId, subscriberId
     subscribers.forEach(subscriber => {
-        // let isNewUser = false;
-        // let isOldUser = false;
+        if (usersMap.has(subscriber.subscriberId)) {
+            const user = usersMap.get(subscriber.subscriberId);
+            user.dates.push(subscriber.subscriberDate);
+        } else {
+            usersMap.set(subscriber.subscriberId, {dates: [subscriber.subscriberDate]})
+        }
 
-        // for (let i=0; i<dates.length; i++){
-        //     if (dates[i] > lastMonth) {
-        //         isNewUser = true;
-        //     }
-        //     if (dates[i] <= lastMonth) {
-        //         isOldUser = true;
-        //     }
-        // }
-        //
-        // if (isNewUser && isOldUser) {
-        //     activeUsers++;
-        //     activeProjects++;
-        // }
-        //
-        // if (!isOldUser && isNewUser) {
-        //     newUsers++;
-        //     newProjects++;
-        // }
+        if (projectsMap.has(subscriber.projectId)) {
+            const project = projectsMap.get(subscriber.projectId);
+            project.dates.push(subscriber.subscriberDate);
+        } else {
+            projectsMap.set(subscriber.projectId, {dates: [subscriber.subscriberDate]})
+        }
+
+        if (subscriber.subscriberDate > lastMonth) {
+            sessionsLastMonth++;
+        }
     });
 
-    // const uniqueUsersSet = new Set();
-    // const activeUsersSet = new Set();
-    //
-    // const subscribersMap = new Map();
-    // let sessionsLastMonth = 0;
+    uniqueUsers = usersMap.size;
 
-    // subscribers.forEach(subscriber => {
-    //     let sInMap = {};
-    //     if (subscribersMap.has(subscriber.subscriberId)) {
-    //         sInMap = subscribersMap.get(subscriber.subscriberId);
-    //         sInMap.allDates.push(subscriber.subscriberDate);
-    //     } else {
-    //         const sInMap = {
-    //             allDates: [subscriber.subscriberDate],
-    //             allProjects: [subscriber.projectId]
-    //         };
-    //         subscribersMap.set(subscriber.subscriberId, sInMap);
-    //     }
-    //     if (subscriber.subscriberDate > lastMonth) {
-    //         sessionsLastMonth++;
-    //     }
-    // });
-    //
-    // // const activeUsers = Array.from(activeUsersSet);
-    // const uniqueUsers = subscribersMap.size;
+    usersMap.forEach((user) => {
+        let isActiveUser = false;
+        let isOldUser = false;
+        const dates = user.dates;
+
+        for (let i=0; i<dates.length; i++){
+            if (dates[i] < lastMonth) {
+                isOldUser = true;
+            }
+            if (dates[i] >= lastMonth) {
+                isActiveUser = true;
+            }
+        };
+
+        if (isActiveUser && isOldUser) {
+            activeUsers++;
+        }
+        if (isActiveUser && !isOldUser) {
+            newUsers++;
+        }
+    });
+
+    projectsMap.forEach((project) => {
+        let isActiveProject = false;
+        let isOldProject = false;
+        const dates = project.dates;
+
+        for (let i=0; i<dates.length; i++){
+            if (dates[i] < lastMonth) {
+                isOldProject = true;
+            }
+            if (dates[i] >= lastMonth) {
+                isActiveProject = true;
+            }
+        };
+
+        if (isActiveProject && isOldProject) {
+            activeProjects++;
+        }
+        if (isActiveProject && !isOldProject) {
+            newProjects++;
+        }
+    });
+
+    versions.forEach(version => {
+        if (version.versionDate > lastMonth){
+            activeUsedVersions.push(version.version)
+        }
+    });
+
+    intensity.forEach(intens => {
+        if (intens.intensityDate > lastMonth){
+            lastMonthUsageIntensity += intens.intensity;
+        }
+    });
+
+    const response = {
+        uniqueUsers,
+        newUsers,
+        activeUsers,
+        newProjects,
+        activeProjects,
+        sessionsLastMonth,
+        activeUsedVersions,
+        lastMonthUsageIntensity
+    };
 
     console.log('subscribers', subscribers);
     console.log('intensity', intensity);
     console.log('versions', versions);
-    res.status(200).json('success');
+    res.status(200).json(response);
 };
 
 // POST data
