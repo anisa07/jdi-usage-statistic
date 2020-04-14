@@ -7,6 +7,42 @@ const getInfo = async (req, res) => {
     const versions = await service.getVersions();
 
     const lastMonth = Date.now() - (3600000*24*30);
+    let uniqueUsers = new Map();
+    let newUsers = 0;
+    let activeUsers = 0;
+    let newProjects = 0;
+    let activeProjects = 0;
+
+    let sessionsLastMonth = 0;
+
+    let activeUsedVersions = [];
+
+    let lastMonthUsageIntensity = 0;
+
+    // //subscriberDate, projectId, subscriberId
+    subscribers.forEach(subscriber => {
+        // let isNewUser = false;
+        // let isOldUser = false;
+
+        // for (let i=0; i<dates.length; i++){
+        //     if (dates[i] > lastMonth) {
+        //         isNewUser = true;
+        //     }
+        //     if (dates[i] <= lastMonth) {
+        //         isOldUser = true;
+        //     }
+        // }
+        //
+        // if (isNewUser && isOldUser) {
+        //     activeUsers++;
+        //     activeProjects++;
+        // }
+        //
+        // if (!isOldUser && isNewUser) {
+        //     newUsers++;
+        //     newProjects++;
+        // }
+    });
 
     // const uniqueUsersSet = new Set();
     // const activeUsersSet = new Set();

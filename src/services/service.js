@@ -33,21 +33,21 @@ const getVersionByDate = (version, date, nextDate) => Version.find({
 // POST to DB
 const postSubscriber = ({userId, projectId, date}) => {
     // return Subscriber.deleteMany();
-    // const subscriber = new Subscriber({
-    //     subscriberId: userId,
-    //     projectId,
-    //     subscriberDate: date
-    // });
-    //
-    // return subscriber.save();
-    return Subscriber.findOneAndUpdate({
-        subscriberId: userId
-    }, {subscriberId: userId, $push: {projectId: projectId, subscriberDate: date}}, {
-        new: true,
-        upsert: true,
-        runValidators: true,
-        useFindAndModify: false
+    const subscriber = new Subscriber({
+        subscriberId: userId,
+        projectId,
+        subscriberDate: date
     });
+
+    return subscriber.save();
+    // return Subscriber.findOneAndUpdate({
+    //     subscriberId: userId
+    // }, {subscriberId: userId, $push: {projectId: projectId, subscriberDate: date}}, {
+    //     new: true,
+    //     upsert: true,
+    //     runValidators: true,
+    //     useFindAndModify: false
+    // });
 };
 
 const postIntensity = ({intensity, intensityDate, today, tomorrow}) => {

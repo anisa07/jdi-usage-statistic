@@ -2,7 +2,8 @@ const express = require('express');
 const router = express.Router();
 const {
     getInfo,
-    postInfo
+    postInfo,
+    postIntensity
 } = require('../controllers/controllers');
 
 // get all info for home page
