@@ -51,7 +51,7 @@ const gatherInfo = async () => {
             }
         };
 
-        if (isActiveUser && isOldUser) {
+        if (isActiveUser) {
             activeUsers++;
         }
         if (isActiveUser && !isOldUser) {
