@@ -1,7 +1,7 @@
-// const mongoose = require('mongoose');
 const Subscriber = require('../mongoDb/models/subscriber');
 const Intensity = require('../mongoDb/models/intensity');
 const Version = require('../mongoDb/models/version');
+const Result = require('../mongoDb/models/result');
 
 // pagination sucks(((
 // const foundProducts = await Product.find({name:regex})
@@ -30,6 +30,13 @@ const getVersionByDate = (version, date, nextDate) => Version.find({
     }
 });
 
+const getResults = () => Result.find();
+
+const getSubscribersByDate = ({today, tomorrow}) => Result.find({resultDate: {
+        $gte: new Date(today),
+        $lte: new Date(tomorrow)
+}});
+
 // POST to DB
 const postSubscriber = ({userId, projectId, date}) => {
     // return Subscriber.deleteMany();
@@ -40,14 +47,6 @@ const postSubscriber = ({userId, projectId, date}) => {
     });
 
     return subscriber.save();
-    // return Subscriber.findOneAndUpdate({
-    //     subscriberId: userId
-    // }, {subscriberId: userId, $push: {projectId: projectId, subscriberDate: date}}, {
-    //     new: true,
-    //     upsert: true,
-    //     runValidators: true,
-    //     useFindAndModify: false
-    // });
 };
 
 const postIntensity = ({intensity, intensityDate, today, tomorrow}) => {
@@ -75,22 +74,33 @@ const postVersion = ({version, date}) => {
     return addVersion.save()
 };
 
+const postResults = ({uniqueUsers, newUsers, sessions, activeUsers, newProjects, activeProjects, resultDate}) => {
+    const addResult = new Result({
+        uniqueUsers,
+        newUsers,
+        sessions,
+        activeUsers,
+        newProjects,
+        activeProjects,
+        resultDate
+    });
 
-// const getSubscriberById = ({externalId}) => Subscriber.find({subscriberExternalId: externalId});
-//
-// const getSubscribersByDate = ({date}) => Subscriber.find({subscriberDate: date});
-//
-// const deleteSubscriberById = ({externalId}) => Subscriber.remove({subscriberExternalId: externalId});
-//
-// const deleteAllSubscribers = () => Subscriber.remove();
+    return addResult.save();
+};
+
+const deleteAllSubscribers = () => Subscriber.deleteMany();
 
 module.exports = {
     postSubscriber,
     postIntensity,
     postVersion,
+    postResults,
     getAllSubscribers,
     getIntensity,
     getVersions,
     getIntensityByDate,
-    getVersionByDate
+    getVersionByDate,
+    getResults,
+    getSubscribersByDate,
+    deleteAllSubscribers
 };

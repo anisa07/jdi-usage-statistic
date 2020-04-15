@@ -1,12 +1,12 @@
 const service = require('../services/index');
+const cron = require("node-cron");
 const logPromiseError = require('../utils/errorLogger');
 
-const getInfo = async (req, res) => {
+const gatherInfo = async () => {
     const subscribers = await service.getAllSubscribers();
-    const intensity = await service.getIntensity();
-    const versions = await service.getVersions();
 
     const lastMonth = Date.now() - (3600000*24*30);
+
     let usersMap = new Map();
     let projectsMap = new Map();
     let uniqueUsers;
@@ -14,11 +14,8 @@ const getInfo = async (req, res) => {
     let activeUsers = 0;
     let newProjects = 0;
     let activeProjects = 0;
-    let sessionsLastMonth = 0;
-    let activeUsedVersions = [];
-    let lastMonthUsageIntensity = 0;
+    let sessions = 0;
 
-    // //subscriberDate, projectId, subscriberId
     subscribers.forEach(subscriber => {
         if (usersMap.has(subscriber.subscriberId)) {
             const user = usersMap.get(subscriber.subscriberId);
@@ -35,7 +32,7 @@ const getInfo = async (req, res) => {
         }
 
         if (subscriber.subscriberDate > lastMonth) {
-            sessionsLastMonth++;
+            sessions++;
         }
     });
 
@@ -85,33 +82,80 @@ const getInfo = async (req, res) => {
         }
     });
 
-    versions.forEach(version => {
-        if (version.versionDate > lastMonth){
-            activeUsedVersions.push(version.version)
-        }
-    });
+    try {
+        await service.postResults({
+            uniqueUsers,
+            newUsers,
+            sessions,
+            activeUsers,
+            newProjects,
+            activeProjects,
+            resultDate: Date.now()
+        });
+    } catch (e) {
+       logPromiseError(null, 'Error while saving Results of a day to DB');
+    }
+};
 
-    intensity.forEach(intens => {
-        if (intens.intensityDate > lastMonth){
-            lastMonthUsageIntensity += intens.intensity;
-        }
-    });
+cron.schedule("59 23 * * *", async function() {
+    await gatherInfo();
+    console.log('Info gathered!');
+});
 
-    const response = {
-        uniqueUsers,
-        newUsers,
-        activeUsers,
-        newProjects,
-        activeProjects,
-        sessionsLastMonth,
-        activeUsedVersions,
-        lastMonthUsageIntensity
-    };
+cron.schedule("* * * 12 *", async function() {
+    try {
+        await service.deleteAllSubscribers();
+        console.log('Subscriber info removed!');
+    } catch (e) {
+        logPromiseError(null, 'Error while clearing Subscribers of a day to DB');
+    }
+});
 
-    console.log('subscribers', subscribers);
-    console.log('intensity', intensity);
-    console.log('versions', versions);
-    res.status(200).json(response);
+const getInfo = async (req, res) => {
+    try {
+        const today = new Date(Date.now()).setHours(0,0,0);
+        const tomorrow = new Date(Date.now()).setHours(23, 59, 59);
+        const lastMonth = Date.now() - (3600000*24*30);
+
+        const intensity = await service.getIntensity();
+        const versions = await service.getVersions();
+        const results = await service.getResults();
+        const subscribers = await service.getAllSubscribers();
+        const resultsByDate = await service.getSubscribersByDate({today, tomorrow});
+
+        let activeUsedVersions = [];
+        let lastMonthUsageIntensity = 0;
+
+        versions.forEach(version => {
+            if (version.versionDate > lastMonth){
+                activeUsedVersions.push(version.version)
+            }
+        });
+
+        intensity.forEach(intens => {
+            if (intens.intensityDate > lastMonth){
+                lastMonthUsageIntensity += intens.intensity;
+            }
+        });
+
+        const response = {
+            results,
+            resultsToday: resultsByDate,
+            activeUsedVersions,
+            lastMonthUsageIntensity
+        };
+
+        console.log('intensity', intensity);
+        console.log('versions', versions);
+        console.log('results', results);
+        console.log('subscribers', subscribers);
+
+        res.status(200).json(response);
+
+    } catch (e) {
+        console.log(e.message);
+        res.status(403).json('Error occurred getting data');
+    }
 };
 
 // POST data
@@ -185,8 +229,3 @@ module.exports = {
     postInfo,
     postIntensity
 };
-
-
-//     geAllSubscribers,
-//     getIntensityByDate,
-//     getVersionByDate
