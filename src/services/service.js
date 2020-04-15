@@ -31,6 +31,7 @@ const getVersionByDate = (version, date, nextDate) => Version.find({
 });
 
 const getResults = () => Result.find();
+// const getResults = () => Result.deleteMany();
 
 const getSubscribersByDate = ({today, tomorrow}) => Result.find({resultDate: {
         $gte: new Date(today),

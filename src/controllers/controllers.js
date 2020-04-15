@@ -4,7 +4,6 @@ const logPromiseError = require('../utils/errorLogger');
 
 const gatherInfo = async () => {
     const subscribers = await service.getAllSubscribers();
-
     const lastMonth = Date.now() - (3600000*24*30);
 
     let usersMap = new Map();
