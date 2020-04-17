@@ -1,4 +1,7 @@
 const express = require('express');
+const fs = require('fs');
+const path = require('path');
+const https = require('https');
 require('dotenv').config();
 const router = require('./routes/router');
 
@@ -12,6 +15,13 @@ if (process.env.DB === 'mongo') {
 
 app.use(express.json());
 app.use('/jdi/usage/statistic', router);
-app.use('/statistic', express.static(__dirname + '/public'));
+// app.use('/statistic', express.static(__dirname + '/public'));
 
-app.listen(process.env.SERVER_PORT || 5000, () => console.log('server started on port ' + process.env.SERVER_PORT));
+
+https.createServer({
+    key: fs.readFileSync(path.join('.','/keys/', 'server.key')),
+    cert: fs.readFileSync(path.join('.','/keys/', 'server.cert'))
+}, app)
+    .listen(process.env.SERVER_PORT || 5000, function () {
+        console.log('App listening on port '+ process.env.SERVER_PORT)
+    });
