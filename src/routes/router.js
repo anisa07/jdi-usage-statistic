@@ -1,9 +1,40 @@
+/**
+ * @swagger
+ * tags:
+ *   name: User
+ *   description: User management
+ */
+
+/**
+ * @swagger
+ * path:
+ *  /jdi/register:
+ *    post:
+ *      summary: Create a new user
+ *      tags: [User]
+ *      requestBody:
+ *        required: true
+ *        content:
+ *          application/json:
+ *            schema:
+ *              $ref: '#/components/schemas/User'
+ *      responses:
+ *        "200":
+ *          description: A user schema
+ *          content:
+ *            application/json:
+ *              schema:
+ *                $ref: '#/components/schemas/User'
+ */
 const express = require('express');
 const router = express.Router();
 const {
     getInfo,
     postInfo,
-    postIntensity
+    postIntensity,
+    login,
+    logout,
+    register,
 } = require('../controllers/controllers');
 
 // get all info for home page
@@ -14,6 +45,11 @@ router.post('/info', (req, res) => postInfo(req, res));
 
 // post intensity data {intensity}
 router.post('/intensity', (req, res) => postIntensity(req, res));
+
+// post login
+router.post('/login', (req, res) => login(req, res));
+router.post('/logout', (req, res) => logout(req, res));
+router.post('/register', (req, res) => register(req, res));
 
 // // get records by id
 // router.get('/:externalId', (req, res) => {
