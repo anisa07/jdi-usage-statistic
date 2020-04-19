@@ -1,89 +1,50 @@
 const express = require('express');
 const cors = require('cors');
+const passport = require('passport');
+const BearerStrategy = require('passport-http-bearer').Strategy;
 const fs = require('fs');
 const path = require('path');
 const https = require('https');
-const passport = require('passport');
-const BearerStrategy = require('passport-http-bearer').Strategy;
 const User = require('./mongoDb/models/user');
+const { handleError } = require('./utils/error');
+const { corsOptions } = require('./utils/corsSettings');
 
 require('dotenv').config();
+require('./mongoDb/mongoConnection');
 
 const router = require('./routes/router');
+
 const app = express();
-
-const whitelist = [
-	// 'https://localhost:5000'
-];
-const corsOptions = {
-	origin: function (origin, callback) {
-		if (whitelist.indexOf(origin) !== -1 || !origin) {
-			callback(null, true)
-		} else {
-			callback('Not allowed by CORS')
-		}
-	}
-};
-
-let db;
-
-if (process.env.DB === 'mongo') {
-	db = require('./mongoDb/mongoConnection');
-}
 
 app.use(cors(corsOptions));
 app.use(express.json());
 
-// function customCallback(req, res, next) {
-//     passport.authenticate('bearer', options, function (error, user, info) {
-//         if (error) {
-//             return next(error);
-//         }
-//
-//         if (!user) {
-//             // info containing default error messages or your defined ones.
-//
-//             next(info);
-//         } else {
-//             // do something with `info`
-//
-//             next();
-//         }
-//     })(req, res, next);
-// }
-//
-
-passport.use(new BearerStrategy(function (token, done) {
-			User.findOne({token}, function (err, user) {
-				if (err) {
-					return done(err);
-				}
-				if (!user) {
-					return done(null, false);
-				}
-				return done(null, user, {scope: 'all'});
-			});
+passport.use(new BearerStrategy(((token, done) => {
+	User.findOne({ token }, (err, user) => {
+		if (err) {
+			return done(err);
 		}
-		// try {
-		//     const { username } = jwt.decode(token, SECRET);
-		//     if (username === ADMIN) {
-		//         done(null, username);
-		//         return;
-		//     }
-		//     done(null, false);
-		// } catch (error) {
-		//     done(null, false);
-		// }
-));
+		if (!user) {
+			return done(null, false);
+		}
+		return done(null, user, { scope: 'all' });
+	});
+})));
 
-app.use('/jdi/usage/statistic', passport.authenticate('bearer', {session: false}), router);
+app.use('/jdi/usage/statistic', passport.authenticate('bearer', { session: false }), router);
 app.use('/jdi', router);
+// app.get('/error', (req, res) => {
+// 	throw new Error(500, 'Internal server error');
+// });
 // app.use('/statistic', express.static(__dirname + '/public'));
+app.use((err, req, res, next) => {
+	handleError(err, res);
+	next();
+});
 
 https.createServer({
 	key: fs.readFileSync(path.join('.', '/keys/', 'server.key')),
-	cert: fs.readFileSync(path.join('.', '/keys/', 'server.cert'))
-}, app)
-		.listen(process.env.SERVER_PORT || 5000, function () {
-			console.log('App listening on port ' + process.env.SERVER_PORT)
-		});
+	cert: fs.readFileSync(path.join('.', '/keys/', 'server.cert')),
+}, app).listen(process.env.SERVER_PORT || 4000, () => {
+	console.log(`App listening on port ${process.env.SERVER_PORT}`);
+});

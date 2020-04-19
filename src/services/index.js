@@ -1,7 +1,13 @@
-let service;
+const resultsService = require('./resultsService');
+const intensityService = require('./intensityService');
+const subscriberService = require('./subscriberService');
+const userService = require('./userService');
+const versionService = require('./versionService');
 
-if (process.env.DB === 'mongo') {
-    service = require('./service');
-}
-
-module.exports = service;
+module.exports = {
+	resultsService,
+	intensityService,
+	subscriberService,
+	userService,
+	versionService,
+};

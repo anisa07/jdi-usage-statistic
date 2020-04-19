@@ -27,14 +27,15 @@
  *                $ref: '#/components/schemas/User'
  */
 const express = require('express');
+
 const router = express.Router();
 const {
-    getInfo,
-    postInfo,
-    postIntensity,
-    login,
-    logout,
-    register,
+	getInfo,
+	postInfo,
+	postIntensity,
+	login,
+	logout,
+	register,
 } = require('../controllers/controllers');
 
 // get all info for home page
