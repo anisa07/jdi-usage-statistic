@@ -237,7 +237,4 @@ module.exports = {
 	getInfo,
 	postInfo,
 	postIntensity,
-	login,
-	register,
-	logout,
 };

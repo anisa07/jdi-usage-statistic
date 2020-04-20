@@ -12,6 +12,7 @@ const { corsOptions } = require('./utils/corsSettings');
 require('dotenv').config();
 require('./mongoDb/mongoConnection');
 
+const { userRouter } = require('./routes');
 const router = require('./routes/router');
 
 const app = express();
@@ -31,8 +32,9 @@ passport.use(new BearerStrategy(((token, done) => {
 	});
 })));
 
-app.use('/jdi/usage/statistic', passport.authenticate('bearer', { session: false }), router);
-app.use('/jdi', router);
+
+// app.use('/jdi/usage/statistic', passport.authenticate('bearer', { session: false }), router);
+app.use('/jdi', userRouter);
 // app.get('/error', (req, res) => {
 // 	throw new Error(500, 'Internal server error');
 // });

@@ -10,7 +10,7 @@ const userSchema = new mongoose.Schema({
 		required: true,
 	},
 	token: {
-		type: String,
+		type: mongoose.Schema.Types.Mixed,
 	},
 });
 

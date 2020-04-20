@@ -1,38 +1,86 @@
-const jwt = require('jsonwebtoken');
-const bcrypt = require('bcrypt');
-const service = require('../services/index');
+const { userService } = require('../services/index');
+const { Error } = require('../utils/error');
+const {
+	signToken, encryptPassword, verifyToken, verifyPassword, charsCorrect,
+} = require('../utils/crypt');
 
-const saltRounds = process.env.SALT_ROUNDS;
+const { SUPER_KEY } = process.env;
 
 const login = async (req, res) => {
 	const { user, password } = req.body;
-	const savedUser = await service.getUserByName(user);
+	const userFromDb = await userService.getUserByName(user);
 
-	if (savedUser) {
-		jwt.verify(savedUser.token, process.env.TOKEN_SALT, (err, decoded) => {
-			if (decoded.user === user && decoded.password === password) {
-				return res.status(200).json(savedUser);
-			}
-			return res.status(403).json('Incorrect user or password');
-		});
-	} else {
-		return res.status(401).json('User does not exist');
+	if (!userFromDb) {
+		throw new Error(404, 'User does not exist!');
 	}
+	const verifyPwd = await verifyPassword(password, userFromDb.password);
+	const token = signToken({ user, password });
+
+	if (verifyPwd) {
+		await userService.updateUser({ user, token });
+		return res.status(200).json({ user, token });
+	}
+
+	throw new Error(401, 'User or password is not correct!');
 };
 
 const register = async (req, res) => {
-	const { user, password } = req.body;
-	const userInDB = await service.getUserByName(user);
+	const { user, password, superKey } = req.body;
+	const userInDB = await userService.getUserByName(user);
+	const encryptPwd = await encryptPassword(password);
+	const token = signToken({ user, password: encryptPwd });
 
-	if (!userInDB) {
-		const token = jwt.sign({ user, password }, process.env.TOKEN_SALT);
-		const newUser = await service.postUser({ user, token });
-		return res.status(200).json(newUser);
+	if (!charsCorrect(user) || !charsCorrect(password)) {
+		throw new Error(400, 'User or password length is too short or their format incorrect');
 	}
-	return res.status(403).json('User already exist');
+
+	if (SUPER_KEY !== superKey) {
+		throw new Error(401, 'User key is not correct');
+	}
+
+	if (userInDB) {
+		throw new Error(403, `User ${user} already exists`);
+	}
+
+	try {
+		await userService.postUser({ user, password: encryptPwd, token });
+		return res.status(200).json({
+			user,
+			token,
+		});
+	} catch (e) {
+		throw new Error(500, 'Internal server error');
+	}
 };
 
 const logout = async (req, res) => {
-	await req.logout();
-	return res.status(200).json('success');
+	const { user } = req.body;
+	// await userService.deleteUser(user);
+	await userService.updateUser({ user, token: null });
+	return res.status(200).json({
+		user: null,
+		token: null,
+	});
+};
+
+const deleteUser = async (req, res) => {
+	const { user, password } = req.body;
+	const { authorization } = req.headers;
+
+	const verify = verifyToken(authorization);
+	const verifyPwd = await verifyPassword(password, verify.password);
+
+	if (verify.user === user && verifyPwd) {
+		await userService.deleteUser(user);
+		return res.status(200).json(`User ${user} was deleted!`);
+	}
+
+	throw new Error(401, 'User is not authorized!');
+};
+
+module.exports = {
+	logout,
+	register,
+	login,
+	deleteUser,
 };

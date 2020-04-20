@@ -1,56 +1,59 @@
-/**
- * @swagger
- * tags:
- *   name: User
- *   description: User management
- */
-
-/**
- * @swagger
- * path:
- *  /jdi/register:
- *    post:
- *      summary: Create a new user
- *      tags: [User]
- *      requestBody:
- *        required: true
- *        content:
- *          application/json:
- *            schema:
- *              $ref: '#/components/schemas/User'
- *      responses:
- *        "200":
- *          description: A user schema
- *          content:
- *            application/json:
- *              schema:
- *                $ref: '#/components/schemas/User'
- */
 const express = require('express');
 
 const router = express.Router();
 const {
-	getInfo,
-	postInfo,
-	postIntensity,
-	login,
-	logout,
-	register,
-} = require('../controllers/controllers');
+	// getInfo,
+	// postInfo,
+	// postIntensity,
+	userControllers,
+	// register,
+} = require('../controllers');
 
-// get all info for home page
-router.get('/info', (req, res) => getInfo(req, res));
-
-// post subscribers data {date, projectId, userId, version}
-router.post('/info', (req, res) => postInfo(req, res));
-
-// post intensity data {intensity}
-router.post('/intensity', (req, res) => postIntensity(req, res));
+// // get all info for home page
+// router.get('/info', (req, res) => getInfo(req, res));
+//
+// // post subscribers data {date, projectId, userId, version}
+// router.post('/info', (req, res) => postInfo(req, res));
+//
+// // post intensity data {intensity}
+// router.post('/intensity', (req, res) => postIntensity(req, res));
 
 // post login
-router.post('/login', (req, res) => login(req, res));
-router.post('/logout', (req, res) => logout(req, res));
-router.post('/register', (req, res) => register(req, res));
+router.post('/login', async (req, res, next) => {
+	try {
+		const result = await userControllers.login(req, res);
+		res.end(result);
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.delete('/logout', async (req, res, next) => {
+	try {
+		const result = await userControllers.logout(req, res);
+		res.end(result);
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.post('/register', async (req, res, next) => {
+	try {
+		const result = await userControllers.register(req, res);
+		res.end(result);
+	} catch (err) {
+		next(err);
+	}
+});
+
+router.delete('/delete', async (req, res, next) => {
+	try {
+		const result = await userControllers.deleteUser(req, res);
+		res.end(result);
+	} catch (err) {
+		next(err);
+	}
+});
 
 // // get records by id
 // router.get('/:externalId', (req, res) => {
