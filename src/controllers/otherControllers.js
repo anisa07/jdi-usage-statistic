@@ -194,7 +194,9 @@ const getInfo = async (req, res) => {
 };
 
 const postInfo = async (req, res) => {
-	const { projectId, userId, version, key } = req.body;
+	const {
+		projectId, userId, version, key,
+	} = req.body;
 	const date = Date.now();
 	const today = new Date(date).setHours(0, 0, 0);
 	const tomorrow = new Date(date).setHours(23, 59, 59);
