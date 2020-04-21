@@ -1,24 +1,47 @@
 const Version = require('../mongoDb/models/version');
+const { Error } = require('../utils/error');
 
-const getVersions = () => Version.find();
-
-const getVersionByDate = (version, date, nextDate) => Version.find({
-	version,
-	versionDate: {
-		$gte: new Date(date),
-		$lte: new Date(nextDate),
-	},
-});
-
-const postVersion = ({ version, date }) => {
-	const addVersion = new Version({
-		version,
-		versionDate: date,
-	});
-	return addVersion.save();
+const getVersions = () => {
+	try {
+		return Version.find();
+	} catch (e) {
+		throw new Error(500, 'Internal server error!');
+	}
 };
 
-const deleteAllVersions = () => Version.deleteMany();
+const getVersionByDate = (version, date, nextDate) => {
+	try {
+		return Version.find({
+			version,
+			versionDate: {
+				$gte: new Date(date),
+				$lte: new Date(nextDate),
+			},
+		});
+	} catch (e) {
+		throw new Error(500, 'Internal server error!');
+	}
+};
+
+const postVersion = ({ version, date }) => {
+	try {
+		const addVersion = new Version({
+			version,
+			versionDate: date,
+		});
+		return addVersion.save();
+	} catch (e) {
+		throw new Error(500, 'Internal server error!');
+	}
+};
+
+const deleteAllVersions = () => {
+	try {
+		return Version.deleteMany();
+	} catch (e) {
+		throw new Error(500, 'Internal server error!');
+	}
+};
 
 module.exports = {
 	postVersion,

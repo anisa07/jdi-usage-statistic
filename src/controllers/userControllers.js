@@ -4,7 +4,7 @@ const {
 	signToken, encryptPassword, verifyToken, verifyPassword, charsCorrect,
 } = require('../utils/crypt');
 
-const { SUPER_KEY } = process.env;
+const { AUTHORIZE_KEY } = process.env;
 
 const login = async (req, res) => {
 	const { user, password } = req.body;
@@ -34,7 +34,7 @@ const register = async (req, res) => {
 		throw new Error(400, 'User or password length is too short or their format incorrect');
 	}
 
-	if (SUPER_KEY !== superKey) {
+	if (AUTHORIZE_KEY !== superKey) {
 		throw new Error(401, 'User key is not correct');
 	}
 

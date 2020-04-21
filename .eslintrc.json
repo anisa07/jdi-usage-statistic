@@ -17,6 +17,7 @@
     "rules": {
         "indent": [2, "tab"],
         "no-tabs": 0,
-        "consistent-return": "off"
+        "consistent-return": "off",
+        "no-plusplus": "off"
     }
 }
