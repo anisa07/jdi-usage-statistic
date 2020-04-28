@@ -1,5 +1,6 @@
 const whitelist = [
-	// 'https://localhost:5000'
+	'https://localhost:4999',
+	'http://localhost:9000',
 ];
 
 const corsOptions = {
@@ -7,7 +8,7 @@ const corsOptions = {
 		if (whitelist.indexOf(origin) !== -1 || !origin) {
 			callback(null, true);
 		} else {
-			callback('Not allowed by CORS');
+			callback({ error: 'Not allowed by CORS', statusCode: 429 });
 		}
 	},
 };

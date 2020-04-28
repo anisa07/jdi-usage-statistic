@@ -37,7 +37,6 @@ app.use('/jdi/usage/statistic/info',
 	otherRouter);
 app.use('/jdi/usage/statistic', otherRouter);
 
-// app.use('/statistic', express.static(__dirname + '/public'));
 app.use((err, req, res, next) => {
 	handleError(err, res);
 	next();
