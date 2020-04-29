@@ -127,7 +127,7 @@ const gatherInfo = async () => {
 			}
 		}
 
-		if (isActiveProject && isOldProject) {
+		if (isActiveProject) {
 			activeProjects += 1;
 		}
 		if (isActiveProject && !isOldProject) {
@@ -162,7 +162,7 @@ const getInfo = async (req, res) => {
 	const intensity = await intensityService.getIntensity();
 	const versions = await versionService.getVersions();
 	const results = await resultsService.getResults();
-	const subscribers = await subscriberService.getAllSubscribers();
+	// const subscribers = await subscriberService.getAllSubscribers();
 
 	const activeUsedVersions = [];
 	let lastMonthUsageIntensity = 0;
@@ -185,10 +185,10 @@ const getInfo = async (req, res) => {
 		lastMonthUsageIntensity,
 	};
 
-	console.log('intensity', intensity);
-	console.log('versions', versions);
-	console.log('results', results);
-	console.log('subscribers', subscribers);
+	// console.log('intensity', intensity);
+	// console.log('versions', versions);
+	// console.log('results', results);
+	// console.log('subscribers', subscribers);
 
 	res.status(200).json(response);
 };
