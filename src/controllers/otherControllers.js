@@ -183,7 +183,7 @@ const getInfo = async (req, res) => {
 		results,
 		activeUsedVersions,
 		lastMonthUsageIntensity,
-		intensity
+		intensity,
 	};
 
 	// console.log('intensity', intensity);

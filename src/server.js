@@ -17,6 +17,7 @@ const { userRouter, otherRouter } = require('./routes');
 const app = express();
 
 app.use(cors(corsOptions));
+
 app.use(express.json());
 
 passport.use(new BearerStrategy(((token, done) => {
