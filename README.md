@@ -1,7 +1,7 @@
 # jdi-usage-statistic server
 Server to gather and preserve info about [JDI testing framework](https://github.com/jdi-testing/jdi-light) usage statistic.
 
-### How to run it statistic server:
+### How to run statistic server:
 1. Setup and run your mongo db instance. Example how to run [mongo](https://docs.mongodb.com/guides/server/install/) and [mongod](https://docs.mongodb.com/manual/tutorial/manage-mongodb-processes/) 
 1. Install npm packages with ```npm i``` command
 1. Fill **.env.example** with appropriate data, remove **.example**, make sure that **.env** is added into **.gitignore**
